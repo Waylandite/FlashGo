@@ -1,6 +1,6 @@
 import unittest
 
-from flashgo import Product, ShoppingCart
+from flashgo import DeliveryOrder, Product, ShoppingCart
 
 
 class FlashGoTests(unittest.TestCase):
@@ -89,6 +89,15 @@ class FlashGoTests(unittest.TestCase):
         order2 = cart2.checkout("Baker Street")
 
         self.assertNotEqual(order1.order_id, order2.order_id)
+
+    def test_delivery_order_rejects_invalid_initial_status(self):
+        with self.assertRaises(ValueError):
+            DeliveryOrder(
+                order_id="abc",
+                items=(),
+                delivery_address="Baker Street",
+                _status="unknown",
+            )
 
 
 if __name__ == "__main__":

@@ -79,6 +79,14 @@ class DeliveryOrder:
         "out_for_delivery",
         "delivered",
     )
+    # Sequence order defines the allowed forward status progression.
+
+    def __post_init__(self) -> None:
+        if self._status not in self._ALLOWED_STATUSES:
+            raise ValueError(
+                f"invalid status: {self._status}. "
+                f"Allowed statuses are: {self._ALLOWED_STATUSES}"
+            )
 
     @property
     def status(self) -> str:
