@@ -1,0 +1,78 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from uuid import uuid4
+
+
+@dataclass(frozen=True)
+class Product:
+    name: str
+    price: float
+
+
+@dataclass(frozen=True)
+class CartItem:
+    product: Product
+    quantity: int
+
+    @property
+    def total_price(self) -> float:
+        return self.product.price * self.quantity
+
+
+class ShoppingCart:
+    def __init__(self) -> None:
+        self._items: dict[str, CartItem] = {}
+
+    def add_item(self, product: Product, quantity: int = 1) -> None:
+        if quantity <= 0:
+            raise ValueError("quantity must be greater than zero")
+
+        existing = self._items.get(product.name)
+        if existing:
+            quantity += existing.quantity
+
+        self._items[product.name] = CartItem(product=product, quantity=quantity)
+
+    @property
+    def items(self) -> list[CartItem]:
+        return list(self._items.values())
+
+    @property
+    def subtotal(self) -> float:
+        return sum(item.total_price for item in self._items.values())
+
+    def checkout(self, delivery_address: str) -> "DeliveryOrder":
+        if not delivery_address.strip():
+            raise ValueError("delivery address is required")
+
+        if not self._items:
+            raise ValueError("cart is empty")
+
+        return DeliveryOrder(
+            order_id=uuid4().hex[:8],
+            items=self.items,
+            delivery_address=delivery_address,
+            status="pending",
+        )
+
+
+@dataclass
+class DeliveryOrder:
+    order_id: str
+    items: list[CartItem]
+    delivery_address: str
+    status: str
+
+    _allowed_statuses = ["pending", "preparing", "out_for_delivery", "delivered"]
+
+    def update_status(self, new_status: str) -> None:
+        if new_status not in self._allowed_statuses:
+            raise ValueError(f"invalid status: {new_status}")
+
+        current_index = self._allowed_statuses.index(self.status)
+        new_index = self._allowed_statuses.index(new_status)
+        if new_index < current_index:
+            raise ValueError("cannot move order status backwards")
+
+        self.status = new_status
