@@ -50,8 +50,8 @@ class ShoppingCart:
             raise ValueError("cart is empty")
 
         return DeliveryOrder(
-            order_id=uuid4().hex[:8],
-            items=self.items,
+            order_id=uuid4().hex,
+            items=tuple(self.items),
             delivery_address=delivery_address,
             status="pending",
         )
@@ -60,18 +60,18 @@ class ShoppingCart:
 @dataclass
 class DeliveryOrder:
     order_id: str
-    items: list[CartItem]
+    items: tuple[CartItem, ...]
     delivery_address: str
     status: str
 
-    _allowed_statuses = ["pending", "preparing", "out_for_delivery", "delivered"]
+    _ALLOWED_STATUSES = ["pending", "preparing", "out_for_delivery", "delivered"]
 
     def update_status(self, new_status: str) -> None:
-        if new_status not in self._allowed_statuses:
+        if new_status not in self._ALLOWED_STATUSES:
             raise ValueError(f"invalid status: {new_status}")
 
-        current_index = self._allowed_statuses.index(self.status)
-        new_index = self._allowed_statuses.index(new_status)
+        current_index = self._ALLOWED_STATUSES.index(self.status)
+        new_index = self._ALLOWED_STATUSES.index(new_status)
         if new_index < current_index:
             raise ValueError("cannot move order status backwards")
 

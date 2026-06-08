@@ -27,16 +27,45 @@ class FlashGoTests(unittest.TestCase):
         order = cart.checkout("Baker Street")
 
         order.update_status("preparing")
+        self.assertEqual(order.status, "preparing")
         order.update_status("out_for_delivery")
+        self.assertEqual(order.status, "out_for_delivery")
         order.update_status("delivered")
 
         self.assertEqual(order.status, "delivered")
+
+    def test_delivery_status_cannot_move_backwards(self):
+        cart = ShoppingCart()
+        cart.add_item(Product("Rice", 5.0), quantity=1)
+        order = cart.checkout("Baker Street")
+        order.update_status("preparing")
+
+        with self.assertRaises(ValueError):
+            order.update_status("pending")
 
     def test_invalid_quantity_raises_error(self):
         cart = ShoppingCart()
 
         with self.assertRaises(ValueError):
             cart.add_item(Product("Egg", 0.5), quantity=0)
+
+    def test_checkout_validation(self):
+        empty_cart = ShoppingCart()
+        with self.assertRaises(ValueError):
+            empty_cart.checkout("Somewhere")
+
+        cart = ShoppingCart()
+        cart.add_item(Product("Bread", 3.0), quantity=1)
+        with self.assertRaises(ValueError):
+            cart.checkout("   ")
+
+    def test_order_id_is_generated(self):
+        cart = ShoppingCart()
+        cart.add_item(Product("Bread", 3.0), quantity=1)
+        order = cart.checkout("221B Baker Street")
+
+        self.assertEqual(len(order.order_id), 32)
+        int(order.order_id, 16)
 
 
 if __name__ == "__main__":
