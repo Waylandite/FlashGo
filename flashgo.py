@@ -9,11 +9,19 @@ class Product:
     name: str
     price: float
 
+    def __post_init__(self) -> None:
+        if self.price <= 0:
+            raise ValueError("price must be greater than zero")
+
 
 @dataclass(frozen=True)
 class CartItem:
     product: Product
     quantity: int
+
+    def __post_init__(self) -> None:
+        if self.quantity <= 0:
+            raise ValueError("quantity must be greater than zero")
 
     @property
     def total_price(self) -> float:
@@ -64,7 +72,7 @@ class DeliveryOrder:
     delivery_address: str
     status: str
 
-    _ALLOWED_STATUSES = ["pending", "preparing", "out_for_delivery", "delivered"]
+    _ALLOWED_STATUSES = ("pending", "preparing", "out_for_delivery", "delivered")
 
     def update_status(self, new_status: str) -> None:
         if new_status not in self._ALLOWED_STATUSES:

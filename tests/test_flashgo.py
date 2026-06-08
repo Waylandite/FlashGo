@@ -49,6 +49,10 @@ class FlashGoTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             cart.add_item(Product("Egg", 0.5), quantity=0)
 
+    def test_invalid_product_price_raises_error(self):
+        with self.assertRaises(ValueError):
+            Product("Bad", 0)
+
     def test_checkout_validation(self):
         empty_cart = ShoppingCart()
         with self.assertRaises(ValueError):
@@ -65,7 +69,7 @@ class FlashGoTests(unittest.TestCase):
         order = cart.checkout("221B Baker Street")
 
         self.assertEqual(len(order.order_id), 32)
-        int(order.order_id, 16)
+        self.assertIsInstance(int(order.order_id, 16), int)
 
 
 if __name__ == "__main__":
