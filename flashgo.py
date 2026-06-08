@@ -62,7 +62,7 @@ class ShoppingCart:
             order_id=uuid4().hex,
             items=tuple(self.items),
             delivery_address=delivery_address,
-            status="pending",
+            _status="pending",
         )
 
 
@@ -71,7 +71,7 @@ class DeliveryOrder:
     order_id: str
     items: tuple[CartItem, ...]
     delivery_address: str
-    status: str
+    _status: str
 
     _ALLOWED_STATUSES: ClassVar[tuple[str, ...]] = (
         "pending",
@@ -79,6 +79,10 @@ class DeliveryOrder:
         "out_for_delivery",
         "delivered",
     )
+
+    @property
+    def status(self) -> str:
+        return self._status
 
     def update_status(self, new_status: str) -> None:
         if new_status not in self._ALLOWED_STATUSES:
@@ -89,4 +93,4 @@ class DeliveryOrder:
         if new_index < current_index:
             raise ValueError("cannot move order status backwards")
 
-        self.status = new_status
+        self._status = new_status
