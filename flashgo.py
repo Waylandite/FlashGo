@@ -86,7 +86,10 @@ class DeliveryOrder:
 
     def update_status(self, new_status: str) -> None:
         if new_status not in self._ALLOWED_STATUSES:
-            raise ValueError(f"invalid status: {new_status}")
+            raise ValueError(
+                f"invalid status: {new_status}. "
+                f"Allowed statuses are: {self._ALLOWED_STATUSES}"
+            )
 
         current_index = self._ALLOWED_STATUSES.index(self.status)
         new_index = self._ALLOWED_STATUSES.index(new_status)

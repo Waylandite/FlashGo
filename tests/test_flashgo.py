@@ -43,6 +43,14 @@ class FlashGoTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             order.update_status("pending")
 
+    def test_invalid_delivery_status_raises_error(self):
+        cart = ShoppingCart()
+        cart.add_item(Product("Rice", 5.0), quantity=1)
+        order = cart.checkout("Baker Street")
+
+        with self.assertRaises(ValueError):
+            order.update_status("unknown")
+
     def test_invalid_quantity_raises_error(self):
         cart = ShoppingCart()
 
