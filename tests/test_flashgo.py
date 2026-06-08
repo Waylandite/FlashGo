@@ -71,6 +71,17 @@ class FlashGoTests(unittest.TestCase):
         self.assertEqual(len(order.order_id), 32)
         self.assertIsInstance(int(order.order_id, 16), int)
 
+    def test_order_ids_are_unique(self):
+        cart1 = ShoppingCart()
+        cart1.add_item(Product("Bread", 3.0), quantity=1)
+        order1 = cart1.checkout("221B Baker Street")
+
+        cart2 = ShoppingCart()
+        cart2.add_item(Product("Milk", 2.0), quantity=1)
+        order2 = cart2.checkout("Baker Street")
+
+        self.assertNotEqual(order1.order_id, order2.order_id)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import ClassVar
 from uuid import uuid4
 
 
@@ -72,7 +73,12 @@ class DeliveryOrder:
     delivery_address: str
     status: str
 
-    _ALLOWED_STATUSES = ("pending", "preparing", "out_for_delivery", "delivered")
+    _ALLOWED_STATUSES: ClassVar[tuple[str, ...]] = (
+        "pending",
+        "preparing",
+        "out_for_delivery",
+        "delivered",
+    )
 
     def update_status(self, new_status: str) -> None:
         if new_status not in self._ALLOWED_STATUSES:
