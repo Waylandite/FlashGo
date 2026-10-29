@@ -13,6 +13,7 @@ public class MerchantAccount {
     @TableId
     private Long id;
     private String merchantNo;
+    private String username;
     private String name;
     private String contactName;
     private String contactMobile;

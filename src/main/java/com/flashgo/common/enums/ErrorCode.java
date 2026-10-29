@@ -13,6 +13,7 @@ public enum ErrorCode {
     AUTH_ACCOUNT_DISABLED("AUTH_ACCOUNT_DISABLED", "账号已禁用"),
     AUTH_PASSWORD_INVALID("AUTH_PASSWORD_INVALID", "账号或密码错误"),
     AUTH_TOKEN_EXPIRED("AUTH_TOKEN_EXPIRED", "登录已过期"),
+    AUTH_USERNAME_EXISTS("AUTH_USERNAME_EXISTS", "用户名已存在"),
     SYSTEM_ERROR("SYSTEM_ERROR", "系统异常");
 
     private final String code;

@@ -11,5 +11,8 @@ public class JwtClaims {
 
     private Long subjectId;
     private IdentityType identityType;
-    private RoleType roleType;
+
+    public RoleType resolveRoleType() {
+        return RoleType.fromIdentityType(identityType);
+    }
 }

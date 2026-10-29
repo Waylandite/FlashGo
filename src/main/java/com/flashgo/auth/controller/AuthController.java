@@ -1,8 +1,10 @@
 package com.flashgo.auth.controller;
 
 import com.flashgo.auth.model.dto.AuthLoginRequest;
+import com.flashgo.auth.model.dto.AuthRegisterRequest;
 import com.flashgo.auth.model.vo.AuthLoginResponse;
 import com.flashgo.auth.model.vo.AuthMeResponse;
+import com.flashgo.auth.model.vo.AuthRegisterResponse;
 import com.flashgo.auth.service.AuthService;
 import com.flashgo.common.api.ApiResponse;
 import jakarta.validation.Valid;
@@ -19,6 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+
+    @PostMapping("/register")
+    public ApiResponse<AuthRegisterResponse> register(@Valid @RequestBody AuthRegisterRequest request) {
+        return ApiResponse.success(authService.register(request));
+    }
 
     @PostMapping("/login")
     public ApiResponse<AuthLoginResponse> login(@Valid @RequestBody AuthLoginRequest request) {

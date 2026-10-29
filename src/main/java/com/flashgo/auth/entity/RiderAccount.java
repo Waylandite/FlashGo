@@ -13,6 +13,7 @@ public class RiderAccount {
     @TableId
     private Long id;
     private String riderNo;
+    private String username;
     private String name;
     private String mobile;
     private String passwordHash;

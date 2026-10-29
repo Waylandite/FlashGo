@@ -13,6 +13,7 @@ public class AppUserAccount {
     @TableId
     private Long id;
     private String userNo;
+    private String username;
     private String nickname;
     private String mobile;
     private String passwordHash;

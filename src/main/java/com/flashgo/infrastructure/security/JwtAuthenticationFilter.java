@@ -41,12 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             JwtClaims claims = jwtTokenService.parseToken(authHeader.substring(7));
+            RoleType roleType = claims.resolveRoleType();
             loginStatusService.refresh(claims.getSubjectId(), claims.getIdentityType());
-            Set<String> permissions = buildPermissions(claims.getRoleType(), claims.getSubjectId(), claims.getIdentityType());
+            Set<String> permissions = buildPermissions(roleType, claims.getSubjectId(), claims.getIdentityType());
             AuthPrincipal principal = AuthPrincipal.builder()
                     .id(claims.getSubjectId())
                     .identityType(claims.getIdentityType())
-                    .roleType(claims.getRoleType())
+                    .roleType(roleType)
                     .username(String.valueOf(claims.getSubjectId()))
                     .displayName(String.valueOf(claims.getSubjectId()))
                     .permissions(permissions)
