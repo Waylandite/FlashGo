@@ -4,12 +4,14 @@
 /.vscode/
 /.DS_Store
 /logs/
-/.mvn/
 *.log
 /docs/*
 !/docs/project-overview.md
+!/docs/analysis-and-development-plan.md
+!/docs/development.md
 /database/
-/src/main/resources/application.yml
 /src/main/resources/application-local.yml
 /src/main/resources/application-dev.yml
 /src/main/resources/application-pro.yml
+/.local/
+/.env

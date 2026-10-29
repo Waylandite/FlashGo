@@ -192,6 +192,14 @@ src/main/java/com/flashgo
 
 ## 快速开始
 
+Windows 本机独立中间件环境可按 [开发环境说明](docs/development.md) 搭建，已提供固定版本 Maven Wrapper、随机本地密钥及启动/停止/验证脚本。
+
+```powershell
+./scripts/setup-native.ps1
+./scripts/dev.ps1 Test
+./scripts/dev.ps1 Run
+```
+
 ### 1. 准备环境
 
 - Java 17+

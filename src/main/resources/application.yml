@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: flashgo
+  profiles:
+    default: local
+  datasource:
+    url: ${FLASHGO_DB_URL:jdbc:mysql://127.0.0.1:13306/flashgo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai}
+    username: ${FLASHGO_DB_USER:flashgo}
+    password: ${FLASHGO_DB_PASSWORD}
+  data:
+    redis:
+      host: ${FLASHGO_REDIS_HOST:127.0.0.1}
+      port: ${FLASHGO_REDIS_PORT:16379}
+      password: ${FLASHGO_REDIS_PASSWORD}
+      timeout: 3s
+  rabbitmq:
+    host: ${FLASHGO_RABBIT_HOST:127.0.0.1}
+    port: ${FLASHGO_RABBIT_PORT:15672}
+    username: ${FLASHGO_RABBIT_USER:flashgo}
+    password: ${FLASHGO_RABBIT_PASSWORD}
+    virtual-host: /flashgo
+  flyway:
+    enabled: true
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+server:
+  address: ${FLASHGO_BIND_ADDRESS:127.0.0.1}
+  port: ${FLASHGO_PORT:8080}
+flashgo:
+  auth:
+    jwt-secret: ${FLASHGO_JWT_SECRET}
+    token-expire-seconds: 7200
+    redis-key-prefix: flashgo:local:login
+    permission-pool-key: flashgo:local:permissions
