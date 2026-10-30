@@ -9,7 +9,6 @@ if (!(Test-Path $secretFile)) {
         FLASHGO_REDIS_PASSWORD = [guid]::NewGuid().ToString('N')
         FLASHGO_RABBIT_PASSWORD = [guid]::NewGuid().ToString('N')
         FLASHGO_JWT_SECRET = [guid]::NewGuid().ToString('N') + [guid]::NewGuid().ToString('N')
-        MYSQL_ROOT_PASSWORD = [guid]::NewGuid().ToString('N')
     } | ConvertTo-Json | Set-Content $secretFile
 }
 $Secrets = Get-Content $secretFile -Raw | ConvertFrom-Json
@@ -19,6 +18,18 @@ $JavaExecutable = Join-Path $javaRuntime 'bin/java.exe'
 $Secrets.PSObject.Properties | Where-Object Name -like 'FLASHGO_*' | ForEach-Object {
     [Environment]::SetEnvironmentVariable($_.Name, [string]$_.Value, 'Process')
 }
+if (!$env:FLASHGO_DB_USER) { $env:FLASHGO_DB_USER = 'root' }
+# Keep IDE startup and script startup on the same ignored local configuration.
+$localConfig = @{
+    spring = @{
+        datasource = @{username=$env:FLASHGO_DB_USER;password=$Secrets.FLASHGO_DB_PASSWORD}
+        data = @{redis=@{password=$Secrets.FLASHGO_REDIS_PASSWORD}}
+        rabbitmq = @{password=$Secrets.FLASHGO_RABBIT_PASSWORD}
+    }
+    flashgo = @{auth=@{'jwt-secret'=$Secrets.FLASHGO_JWT_SECRET}}
+}
+# JSON is valid YAML and safely quotes passwords containing special characters.
+$localConfig | ConvertTo-Json -Depth 6 | Set-Content "$LocalRoot/application-local.yml" -Encoding utf8
 $env:SPRING_PROFILES_ACTIVE = 'local'
 $env:ERLANG_HOME = "$LocalRoot/tools/erlang"
 $env:RABBITMQ_BASE = "$LocalRoot/rabbitmq"

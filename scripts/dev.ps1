@@ -4,16 +4,10 @@ Push-Location $ProjectRoot
 try {
     switch ($Action) {
         'Start' {
-            if (!(Test-Path "$MysqlBin/mysqld.exe") -or !$Memurai -or !(Test-Path "$RabbitSbin/rabbitmq-server.bat")) {
+            if (!$Memurai -or !(Test-Path "$RabbitSbin/rabbitmq-server.bat")) {
                 throw 'Missing native dependencies. Run scripts/setup-native.ps1 first.'
             }
-            if (!(Test-Path "$LocalRoot/mysql/data/mysql")) { throw 'MySQL data is not initialized. Run setup-native.ps1.' }
-            if (!(Test-LocalPort 13306)) {
-                $mysqlArgs = @('--no-defaults', "--datadir=$LocalRoot/mysql/data", '--port=13306', '--bind-address=127.0.0.1', '--mysqlx=OFF', '--console')
-                $process = Start-Process "$MysqlBin/mysqld.exe" -ArgumentList $mysqlArgs -WindowStyle Hidden -PassThru -RedirectStandardOutput "$LocalRoot/logs/mysql.out.log" -RedirectStandardError "$LocalRoot/logs/mysql.err.log"
-                $process.Id | Set-Content "$LocalRoot/mysql.pid"
-                Wait-LocalPort 13306
-            }
+            if (!(Test-LocalPort 3306)) { throw 'Start the existing MySQL91 Windows service on port 3306 first.' }
             if (!(Test-LocalPort 16379)) {
                 $process = Start-Process $Memurai -ArgumentList "$LocalRoot/redis/redis.conf" -WindowStyle Hidden -PassThru -RedirectStandardOutput "$LocalRoot/logs/redis.out.log" -RedirectStandardError "$LocalRoot/logs/redis.err.log"
                 $process.Id | Set-Content "$LocalRoot/redis.pid"
@@ -24,7 +18,7 @@ try {
                 Assert-Exit 'RabbitMQ startup'
                 Wait-LocalPort 15672
             }
-            Write-Host 'Native dependencies ready: MySQL 13306, Redis 16379, RabbitMQ 15672 (management 15673).'
+            Write-Host 'Native dependencies ready: existing MySQL 3306, Redis 16379, RabbitMQ 15672 (management 15673).'
         }
         'Stop' {
             if (Test-LocalPort 8080) { Write-Host 'Stop the foreground application with Ctrl+C before stopping dependencies.' }
@@ -33,13 +27,10 @@ try {
                 $env:REDISCLI_AUTH = $Secrets.FLASHGO_REDIS_PASSWORD
                 try { & (Join-Path (Split-Path $Memurai) 'memurai-cli.exe') -p 16379 shutdown; Assert-Exit 'Redis shutdown' } finally { Remove-Item Env:REDISCLI_AUTH -ErrorAction SilentlyContinue }
             }
-            if (Test-LocalPort 13306) {
-                $env:MYSQL_PWD = $Secrets.MYSQL_ROOT_PASSWORD
-                try { & "$MysqlBin/mysqladmin.exe" --no-defaults -h 127.0.0.1 -P 13306 -u root shutdown; Assert-Exit 'MySQL shutdown' } finally { Remove-Item Env:MYSQL_PWD }
-            }
+            Write-Host 'The existing MySQL91 service is managed by Windows and remains running.'
         }
         'Status' {
-            foreach ($entry in @(@('MySQL',13306),@('Redis',16379),@('RabbitMQ',15672),@('RabbitMQ UI',15673),@('FlashGo',8080))) {
+            foreach ($entry in @(@('MySQL',3306),@('Redis',16379),@('RabbitMQ',15672),@('RabbitMQ UI',15673),@('FlashGo',8080))) {
                 Write-Host ("{0,-12} {1}: {2}" -f $entry[0],$entry[1],(Test-LocalPort $entry[1]))
             }
         }

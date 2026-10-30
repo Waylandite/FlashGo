@@ -3,7 +3,7 @@ $env:FLASHGO_MYSQL_BIN = $MysqlBin
 . "$PSScriptRoot/dev-env.ps1"
 Push-Location $ProjectRoot
 try {
-    New-Item -ItemType Directory -Force "$LocalRoot/downloads", "$LocalRoot/tools", "$LocalRoot/mysql/data", "$LocalRoot/redis", "$LocalRoot/rabbitmq" | Out-Null
+    New-Item -ItemType Directory -Force "$LocalRoot/downloads", "$LocalRoot/tools", "$LocalRoot/redis", "$LocalRoot/rabbitmq" | Out-Null
     function Get-Package([string]$Name, [string]$Url) {
         $destination = "$LocalRoot/downloads/$Name"
         if (!(Test-Path $destination)) {
@@ -46,16 +46,12 @@ default_pass = $($Secrets.FLASHGO_RABBIT_PASSWORD)
 default_vhost = /flashgo
 "@ | Set-Content "$LocalRoot/rabbitmq/rabbitmq.conf" -Encoding ascii
     '[rabbitmq_management].' | Set-Content "$LocalRoot/rabbitmq/enabled_plugins" -Encoding ascii
-    if (!(Test-Path "$LocalRoot/mysql/data/mysql")) {
-        & "$MysqlBin/mysqld.exe" --no-defaults --initialize-insecure "--datadir=$LocalRoot/mysql/data" --console
-        Assert-Exit 'MySQL initialization'
-        $process = Start-Process "$MysqlBin/mysqld.exe" -ArgumentList @('--no-defaults', "--datadir=$LocalRoot/mysql/data", '--port=13306', '--bind-address=127.0.0.1', '--mysqlx=OFF', '--console') -WindowStyle Hidden -PassThru -RedirectStandardOutput "$LocalRoot/logs/mysql.out.log" -RedirectStandardError "$LocalRoot/logs/mysql.err.log"
-        $process.Id | Set-Content "$LocalRoot/mysql.pid"
-        Wait-LocalPort 13306
-        $sql = "CREATE DATABASE flashgo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER 'flashgo'@'127.0.0.1' IDENTIFIED BY '$($Secrets.FLASHGO_DB_PASSWORD)'; GRANT ALL ON flashgo.* TO 'flashgo'@'127.0.0.1'; ALTER USER 'root'@'localhost' IDENTIFIED BY '$($Secrets.MYSQL_ROOT_PASSWORD)';"
-        $sql | & "$MysqlBin/mysql.exe" --no-defaults -h 127.0.0.1 -P 13306 -u root
-        Assert-Exit 'MySQL accounts'
-    }
+    if (!(Test-LocalPort 3306)) { throw 'Start the existing MySQL91 service on port 3306 first.' }
+    $env:MYSQL_PWD = $Secrets.FLASHGO_DB_PASSWORD
+    try {
+        'CREATE DATABASE IF NOT EXISTS flashgo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;' | & "$MysqlBin/mysql.exe" --no-defaults -h 127.0.0.1 -P 3306 -u $env:FLASHGO_DB_USER
+        Assert-Exit 'Local database connection and creation'
+    } finally { Remove-Item Env:MYSQL_PWD }
     & "$PSScriptRoot/dev.ps1" Start
     Get-ChildItem "$LocalRoot/downloads" -File | Where-Object Extension -in '.zip','.msi' | Get-FileHash -Algorithm SHA256 | Select-Object Path,Hash | ConvertTo-Json | Set-Content "$LocalRoot/downloads/checksums.json"
 } finally { Pop-Location }

@@ -22,7 +22,7 @@ class FlashGoApplicationTests {
 
     @Test
     void contextLoads() {
-        assertEquals(2, jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE success = 1", Integer.class));
+        assertEquals(1, jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE version = '3' AND success = 1", Integer.class));
         assertEquals("PONG", redis.execute((org.springframework.data.redis.core.RedisCallback<String>) connection -> connection.ping()));
     }
 

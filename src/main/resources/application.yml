@@ -4,8 +4,8 @@ spring:
   profiles:
     default: local
   datasource:
-    url: ${FLASHGO_DB_URL:jdbc:mysql://127.0.0.1:13306/flashgo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai}
-    username: ${FLASHGO_DB_USER:flashgo}
+    url: ${FLASHGO_DB_URL:jdbc:mysql://127.0.0.1:3306/flashgo?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai}
+    username: ${FLASHGO_DB_USER:root}
     password: ${FLASHGO_DB_PASSWORD}
   data:
     redis:
@@ -36,3 +36,9 @@ flashgo:
     token-expire-seconds: 7200
     redis-key-prefix: flashgo:local:login
     permission-pool-key: flashgo:local:permissions
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: optional:file:./.local/application-local.yml
